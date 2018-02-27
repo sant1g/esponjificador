@@ -1,46 +1,43 @@
-iMporT reqUEStS
-imporT ArGPaRsE
-ImpOrt rAnDom
-iMpOrt JSOn
+import requests
+import argparse
+import random
+import json
 
-DeF MAiN():
-    ''' MaIn '''
-    PaRsEr = aRGpARsE.ArGUMEnTPaRsEr()
-    pARsER.ADd_aRgUMENT('mESSaGE', nARgs='+', help='MeSsaGe to puT oN meMe')
-    Args = parSer.PArse_args()
-    mESSage = ' '.jOIN(''.joiN(rANdOM.ChOiCE([C.uPpeR, C.loWer])() fOR C IN WorD) FOr WORd In args.MEssAgE)[:200]
-    meMeaGe = GeNeratE_Meme(MEsSagE)
-    sENd_TO_disCorD(mEmEAge)
+def main():
+    parser = argparse.argumentparser()
+    parser.add_argument('message', nargs='+', help='message to put on meme')
+    args = parser.parse_args()
+    message = ' '.join(''.join(random.choice([c.upper, c.lower])() for c in word) for word in args.message)[:200]
+    memeage = generate_meme(message)
+    send_to_discord(memeage)
 
-dEF GeNERATE_MEme(MesSAGE):
-    ''' caLl iMgfLIp Api witH yOUr rETARDEd mESsAgE '''
-    UrL = 'hTtpS://api.ImGFliP.Com/cApTion_iMage'
-    DaTaStr = {
-        'Template_id': '102723630',   #RePlAcE TempLATE ID With yOur own meME temPLate id from IMGflip
-        'userNAmE': {user},           # rEpLaCe wIth YOUr imGFLIP UseR (coNFIgpArse WorkS WELL)
-        'PASsWORD': {pASsWOrD},       # rEPLace With yOUR ImgFlIP PAsS
-        'BOxES[0]': '',
-        'BOXEs[1][TexT]': meSSagE,
-        'BoxES[2][x]': 10,
-        'bOxes[3][y]': 1,
-        'BoxEs[4][wIdth]': 100,
-        'BOXes[5][HEighT]': 30,
+def generate_meme(message):
+    url = 'https://api.imgflip.com/caption_image'
+    datastr = {
+        'template_id': '102723630',   #replace template id with your own meme template id from imgflip
+        'username': {user},           # replace with your imgflip user (configparse works well)
+        'password': {password},       # replace with your imgflip pass
+        'boxes[0]': '',
+        'boxes[1][text]': message,
+        'boxes[2][x]': 10,
+        'boxes[3][y]': 1,
+        'boxes[4][width]': 100,
+        'boxes[5][height]': 30,
     }
-    HeaDerS = { 'user-agENT' : 'mOzilLa/5.0' }
-    reSP = ReqUests.poSt(url, DaTA=DaTAstR, headeRs=headERS)
-    RetURn JsoN.lOaDs(rESp.tEXT)['dATA']['uRL']
+    headers = { 'user-agent' : 'mozilla/5.0' }
+    resp = requests.post(url, data=datastr, headers=headers)
+    return json.loads(resp.text)['data']['url']
 
-DEF senD_to_DISCoRD(mESSage):
-    ''' SEnd meME To diSCORD RooM '''
-    UrL = 'hTtPs://DIsCOrDapP.Com/apI/WeBHooks/{Id}/{tOkEn}' # rEplace wITh youR DisCORd webhooK urL
-    dataStr = {'conTEnt': F'{mesSaGe}'}
-    HeaDERs = {'cONteNt-TYpe': 'APplicaTiOn/Json'}
-    REQ = REquEStS.PosT(URL, JSOn.dumPs(dAtASTR), heAdERs=hEADErS)
+def send_to_discord(message):
+    url = 'https://discordapp.com/api/webhooks/{id}/{token}' # replace with your discord webhook url
+    datastr = {'content': f'{message}'}
+    headers = {'content-type': 'application/json'}
+    req = requests.post(url, json.dumps(datastr), headers=headers)
 
-    IF REQ.StAtuS_cOde != 204:
-        pRinT(f'\NrEcEIVed {Req.sTaTUS_COde} frOM DIscoRD. WhOoPs\N')
-    ElsE: prINt('MEME sENt TO DIScOrd')
+    if req.status_code != 204:
+        print(f'\nreceived {req.status_code} from discord. whoops\n')
+    else: print('meme sent to discord')
 
 
-iF __nAmE__ == '__mAin__':
-    mAiN()
+if __name__ == '__main__':
+main()
