@@ -15,7 +15,7 @@ def main():
 def generate_meme(message):
     url = 'https://api.imgflip.com/caption_image'
     datastr = {
-        'template_id': '102156234', # Meme ID
+        'template_id': '102156234', # Meme Template ID
         'username': '', # imgflip Username
         'password': '', # imgflip Password
         'boxes[0]': '',
